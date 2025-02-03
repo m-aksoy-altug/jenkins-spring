@@ -2,4 +2,5 @@
 .settings/*
 .project
 .classpath
+docker-compose.yml
 /target/
