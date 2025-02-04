@@ -81,7 +81,7 @@ def parseJacocoReport(String jacocoFile) {
     def totalComplexityCovered = 0
 
   report.'counter'.each { counter ->
-        def type = counter.getProperty('@type')?.toString(): 'type not found'
+        def type = counter.getProperty('@type')?.toString() ?: 'type not found'
         def missed = counter.getProperty('@missed')?.toInteger() ?: 0
         def covered = counter.getProperty('@covered')?.toInteger() ?: 0
         
