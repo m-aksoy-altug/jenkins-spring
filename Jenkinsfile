@@ -34,13 +34,13 @@ pipeline {
 		            if (!fileExists(jacocoFile)) {
 		                error "JaCoCo coverage report not found!"
 		            }
-		            def instructionCoverage = sh(script: "grep -oPm1 '(?<=<counter type=\"INSTRUCTION\" missed=\")\\d+(?=\" covered=\"\\d+\")' ${jacocoFile}", returnStdout: true).trim()
-		            def coveredInstructions = sh(script: "grep -oPm1 '(?<=<counter type=\"INSTRUCTION\" missed=\"\\d+\" covered=\")\\d+(?=\")' ${jacocoFile}", returnStdout: true).trim()
-		            def lineCoverage = sh(script: "grep -oPm1 '(?<=<counter type=\"LINE\" missed=\")\\d+(?=\" covered=\"\\d+\")' ${jacocoFile}", returnStdout: true).trim()
-		            def coveredLines = sh(script: "grep -oPm1 '(?<=<counter type=\"LINE\" missed=\"\\d+\" covered=\")\\d+(?=\")' ${jacocoFile}", returnStdout: true).trim()
-		            def complexityCoverage = sh(script: "grep -oPm1 '(?<=<counter type=\"COMPLEXITY\" missed=\")\\d+(?=\" covered=\"\\d+\")' ${jacocoFile}", returnStdout: true).trim()
-		            def coveredComplexity = sh(script: "grep -oPm1 '(?<=<counter type=\"COMPLEXITY\" missed=\"\\d+\" covered=\")\\d+(?=\")' ${jacocoFile}", returnStdout: true).trim()
-		
+			        def instructionMissed = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"INSTRUCTION\"]/@missed)' ${jacocoFile}", returnStdout: true).trim()
+			        def instructionCovered = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"INSTRUCTION\"]/@covered)' ${jacocoFile}", returnStdout: true).trim()
+			        def lineMissed = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"LINE\"]/@missed)' ${jacocoFile}", returnStdout: true).trim()
+			        def lineCovered = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"LINE\"]/@covered)' ${jacocoFile}", returnStdout: true).trim()
+			        def complexityMissed = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"COMPLEXITY\"]/@missed)' ${jacocoFile}", returnStdout: true).trim()
+			        def complexityCovered = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"COMPLEXITY\"]/@covered)' ${jacocoFile}", returnStdout: true).trim()
+
 		            def instructionRate = (coveredInstructions.toDouble() / (coveredInstructions.toDouble() + instructionCoverage.toDouble())) * 100
 		            def lineRate = (coveredLines.toDouble() / (coveredLines.toDouble() + lineCoverage.toDouble())) * 100
 		            def complexityRate = (coveredComplexity.toDouble() / (coveredComplexity.toDouble() + complexityCoverage.toDouble())) * 100
