@@ -80,7 +80,7 @@ def parseJacocoReport(String jacocoFile) {
     def totalComplexityMissed = 0
     def totalComplexityCovered = 0
 
-    report.depthFirst().findAll { it.name() == 'counter' }.each { counter ->
+    report.counter.each { counter ->
         switch (counter.@type.toString()) {
             case 'INSTRUCTION':
                 totalInstructionMissed += counter.@missed.toInteger()
@@ -100,7 +100,10 @@ def parseJacocoReport(String jacocoFile) {
         }
     }
 	
-    println "Total Coverage Summary: Instruction - Missed: ${totalInstructionMissed}, Covered: ${totalInstructionCovered}, Line - Missed: ${totalLineMissed}, Covered: ${totalLineCovered}, Complexity - Missed: ${totalComplexityMissed}, Covered: ${totalComplexityCovered}"
+    println "Total Coverage Summary:"
+    println "  Instruction - Missed: ${totalInstructionMissed}, Covered: ${totalInstructionCovered}"
+    println "  Line - Missed: ${totalLineMissed}, Covered: ${totalLineCovered}"
+    println "  Complexity - Missed: ${totalComplexityMissed}, Covered: ${totalComplexityCovered}"
 
     return [
         instructionMissed: totalInstructionMissed,
