@@ -38,7 +38,12 @@ pipeline {
 		                error "JaCoCo coverage report not found!"
 		            }
 		
-		            def report = new XmlSlurper().parse(jacocoFile)
+		            // Parse the JaCoCo XML report using XmlSlurper with DOCTYPE allowed
+		            def xmlParser = new XmlParser(false, false) // Disable validation and allow DOCTYPE
+		            xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+		            def report = xmlParser.parse(jacocoFile)
+            
+		            
 		            def instructionCounter = report.counter.find { it.@type == 'INSTRUCTION' }
 		            def lineCounter = report.counter.find { it.@type == 'LINE' }
 		            def complexityCounter = report.counter.find { it.@type == 'COMPLEXITY' }
