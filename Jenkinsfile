@@ -40,6 +40,7 @@ pipeline {
 		
 		          def xmlParser = new XmlParser(false, false) 
 		            xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+		            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		            def report = xmlParser.parse(jacocoFile)
             
 		            
