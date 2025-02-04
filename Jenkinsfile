@@ -34,21 +34,30 @@ pipeline {
 		            if (!fileExists(jacocoFile)) {
 		                error "JaCoCo coverage report not found!"
 		            }
-			        def instructionMissed = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"INSTRUCTION\"]/@missed)' ${jacocoFile}", returnStdout: true).trim()
-			        def instructionCovered = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"INSTRUCTION\"]/@covered)' ${jacocoFile}", returnStdout: true).trim()
-			        def lineMissed = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"LINE\"]/@missed)' ${jacocoFile}", returnStdout: true).trim()
-			        def lineCovered = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"LINE\"]/@covered)' ${jacocoFile}", returnStdout: true).trim()
-			        def complexityMissed = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"COMPLEXITY\"]/@missed)' ${jacocoFile}", returnStdout: true).trim()
-			        def complexityCovered = sh(script: "xmllint --xpath 'string(//report/counter[@type=\"COMPLEXITY\"]/@covered)' ${jacocoFile}", returnStdout: true).trim()
-
-		            def instructionRate = (coveredInstructions.toDouble() / (coveredInstructions.toDouble() + instructionCoverage.toDouble())) * 100
-		            def lineRate = (coveredLines.toDouble() / (coveredLines.toDouble() + lineCoverage.toDouble())) * 100
-		            def complexityRate = (coveredComplexity.toDouble() / (coveredComplexity.toDouble() + complexityCoverage.toDouble())) * 100
+		
+		            def report = new XmlSlurper().parse(jacocoFile)
+		            def instructionCounter = report.counter.find { it.@type == 'INSTRUCTION' }
+		            def lineCounter = report.counter.find { it.@type == 'LINE' }
+		            def complexityCounter = report.counter.find { it.@type == 'COMPLEXITY' }
+		
+		            
+		            def instructionMissed = instructionCounter.@missed.toInteger()
+		            def instructionCovered = instructionCounter.@covered.toInteger()
+		            def lineMissed = lineCounter.@missed.toInteger()
+		            def lineCovered = lineCounter.@covered.toInteger()
+		            def complexityMissed = complexityCounter.@missed.toInteger()
+		            def complexityCovered = complexityCounter.@covered.toInteger()
+		
+		           
+		            def instructionRate = (instructionCovered / (instructionCovered + instructionMissed)) * 100
+		            def lineRate = (lineCovered / (lineCovered + lineMissed)) * 100
+		            def complexityRate = (complexityCovered / (complexityCovered + complexityMissed)) * 100
 		
 		            echo "Instruction Coverage: ${instructionRate.round(2)}%"
 		            echo "Line Coverage: ${lineRate.round(2)}%"
 		            echo "Complexity Coverage: ${complexityRate.round(2)}%"
 		
+		            
 		            def coverageThreshold = 60.0
 		            if (instructionRate < coverageThreshold || lineRate < coverageThreshold || complexityRate < coverageThreshold) {
 		                currentBuild.result = 'UNSTABLE'
@@ -56,7 +65,6 @@ pipeline {
 		            }
 		        }
 		    }
-		}    
-    
+		}
     }
 }
