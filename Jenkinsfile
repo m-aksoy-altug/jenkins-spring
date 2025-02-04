@@ -37,28 +37,9 @@ pipeline {
 		             if (!fileExists(jacocoFile)) {
                 		error "JaCoCo coverage report not found at ${jacocoFile}!"
             		}
-					
-					
-/*		          	def xmlParser = new XmlParser(false, false) 
-		            xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
-		            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-		            def report = xmlParser.parse(jacocoFile)
-*/           
                     def report = parseJacocoReport(jacocoFile)
+                    def metrics = extractCoverageMetrics(report)                    
                     
-		            def instructionCounter = report.counter.find { it.@type == 'INSTRUCTION' }
-		            def lineCounter = report.counter.find { it.@type == 'LINE' }
-		            def complexityCounter = report.counter.find { it.@type == 'COMPLEXITY' }
-		
-		            
-		            def instructionMissed = instructionCounter.@missed.toInteger()
-		            def instructionCovered = instructionCounter.@covered.toInteger()
-		            def lineMissed = lineCounter.@missed.toInteger()
-		            def lineCovered = lineCounter.@covered.toInteger()
-		            def complexityMissed = complexityCounter.@missed.toInteger()
-		            def complexityCovered = complexityCounter.@covered.toInteger()
-		
-		           
 		            def instructionRate = (instructionCovered / (instructionCovered + instructionMissed)) * 100
 		            def lineRate = (lineCovered / (lineCovered + lineMissed)) * 100
 		            def complexityRate = (complexityCovered / (complexityCovered + complexityMissed)) * 100
@@ -85,4 +66,21 @@ def parseJacocoReport(String jacocoFile) {
 	xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false) 
 	xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 	return xmlParser.parse(jacocoFile)
+}
+
+@NonCPS
+def extractCoverageMetrics(def report) {
+	
+    def instructionCounter = report.counter.find { it.@type == 'INSTRUCTION' }
+    def lineCounter = report.counter.find { it.@type == 'LINE' }
+    def complexityCounter = report.counter.find { it.@type == 'COMPLEXITY' }
+
+    return [
+        instructionMissed: instructionCounter.@missed.toInteger(),
+        instructionCovered: instructionCounter.@covered.toInteger(),
+        lineMissed: lineCounter.@missed.toInteger(),
+        lineCovered: lineCounter.@covered.toInteger(),
+        complexityMissed: complexityCounter.@missed.toInteger(),
+        complexityCovered: complexityCounter.@covered.toInteger()
+    ]
 }
