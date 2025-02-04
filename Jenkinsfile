@@ -80,25 +80,32 @@ def parseJacocoReport(String jacocoFile) {
     def totalComplexityMissed = 0
     def totalComplexityCovered = 0
 
-    report.counter.each { counter ->
-        switch (counter.@type.toString()) {
+  report.'counter'.each { counter ->
+        def type = counter.attribute("type")?.toString()
+        def missed = counter.attribute("missed")?.toInteger() ?: 0
+        def covered = counter.attribute("covered")?.toInteger() ?: 0
+
+        switch (type) {
             case 'INSTRUCTION':
-                totalInstructionMissed += counter.@missed.toInteger()
-                totalInstructionCovered += counter.@covered.toInteger()
-                println "Instruction - Missed: ${counter.@missed}, Covered: ${counter.@covered}"
+                totalInstructionMissed += missed
+                totalInstructionCovered += covered
                 break
             case 'LINE':
-                totalLineMissed += counter.@missed.toInteger()
-                totalLineCovered += counter.@covered.toInteger()
-                println "Line - Missed: ${counter.@missed}, Covered: ${counter.@covered}"
+                totalLineMissed += missed
+                totalLineCovered += covered
                 break
             case 'COMPLEXITY':
-                totalComplexityMissed += counter.@missed.toInteger()
-                totalComplexityCovered += counter.@covered.toInteger()
-                println "Complexity - Missed: ${counter.@missed}, Covered: ${counter.@covered}"
+                totalComplexityMissed += missed
+                totalComplexityCovered += covered
                 break
         }
     }
+
+    println "Total Coverage Summary:"
+    println "  Instruction - Missed: ${totalInstructionMissed}, Covered: ${totalInstructionCovered}"
+    println "  Line - Missed: ${totalLineMissed}, Covered: ${totalLineCovered}"
+    println "  Complexity - Missed: ${totalComplexityMissed}, Covered: ${totalComplexityCovered}"
+
 	
     println "Total Coverage Summary:"
     println "  Instruction - Missed: ${totalInstructionMissed}, Covered: ${totalInstructionCovered}"
