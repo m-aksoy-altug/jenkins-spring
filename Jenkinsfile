@@ -39,8 +39,7 @@ pipeline {
             		}
                     
                     def metrics = parseJacocoReport(jacocoFile)
-                    echo "XML file is exracted..."
-		           
+                   
                     def instructionRate = (metrics.instructionCovered / (metrics.instructionCovered + metrics.instructionMissed)) * 100
                     def lineRate = (metrics.lineCovered / (metrics.lineCovered + metrics.lineMissed)) * 100
                     def complexityRate = (metrics.complexityCovered / (metrics.complexityCovered + metrics.complexityMissed)) * 100
@@ -69,16 +68,44 @@ def parseJacocoReport(String jacocoFile) {
     xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
     def report = xmlParser.parse(jacocoFile)
     
-    def instructionCounter = report.counter.find { it.@type == 'INSTRUCTION' }
-    def lineCounter = report.counter.find { it.@type == 'LINE' }
-    def complexityCounter = report.counter.find { it.@type == 'COMPLEXITY' }
+    println "Parsing Jacoco report: ${jacocoFile}"
+	
+	def totalInstructionMissed = 0
+    def totalInstructionCovered = 0
+    def totalLineMissed = 0
+    def totalLineCovered = 0
+    def totalComplexityMissed = 0
+    def totalComplexityCovered = 0
+
+    report.depthFirst().findAll { it.name() == 'counter' }.each { counter ->
+        switch (counter.@type.toString()) {
+            case 'INSTRUCTION':
+                totalInstructionMissed += counter.@missed.toInteger()
+                totalInstructionCovered += counter.@covered.toInteger()
+                println "Instruction - Missed: ${counter.@missed}, Covered: ${counter.@covered}"
+                break
+            case 'LINE':
+                totalLineMissed += counter.@missed.toInteger()
+                totalLineCovered += counter.@covered.toInteger()
+                println "Line - Missed: ${counter.@missed}, Covered: ${counter.@covered}"
+                break
+            case 'COMPLEXITY':
+                totalComplexityMissed += counter.@missed.toInteger()
+                totalComplexityCovered += counter.@covered.toInteger()
+                println "Complexity - Missed: ${counter.@missed}, Covered: ${counter.@covered}"
+                break
+        }
+    }
+	
+    println "Total Coverage Summary: Instruction - Missed: ${totalInstructionMissed}, Covered: ${totalInstructionCovered}, Line - Missed: ${totalLineMissed}, Covered: ${totalLineCovered}, Complexity - Missed: ${totalComplexityMissed}, Covered: ${totalComplexityCovered}"
 
     return [
-        instructionMissed: instructionCounter.@missed.toInteger(),
-        instructionCovered: instructionCounter.@covered.toInteger(),
-        lineMissed: lineCounter.@missed.toInteger(),
-        lineCovered: lineCounter.@covered.toInteger(),
-        complexityMissed: complexityCounter.@missed.toInteger(),
-        complexityCovered: complexityCounter.@covered.toInteger()
+        instructionMissed: totalInstructionMissed,
+        instructionCovered: totalInstructionCovered,
+        lineMissed: totalLineMissed,
+        lineCovered: totalLineCovered,
+        complexityMissed: totalComplexityMissed,
+        complexityCovered: totalComplexityCovered
     ]
+    
 }
