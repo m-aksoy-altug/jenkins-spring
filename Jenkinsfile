@@ -63,14 +63,15 @@ pipeline {
 
 @NonCPS
 def parseJacocoReport(String jacocoFile) {
+     println "Parsing Jacoco report: ${jacocoFile}"
     def xmlParser = new XmlSlurper(false, false) 
     xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
     xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-    def report = xmlParser.parse(jacocoFile)
+        
+    def report = xmlParser.parse(new File(jacocoFile)) 
+	println("Parsed XML structure: " + groovy.xml.XmlUtil.serialize(report))
+    println("Available fields: " + report.children().collect { it.name() })
     
-    println "Parsing Jacoco report: ${jacocoFile}"
-    
-    println groovy.xml.XmlUtil.escapeXml(report.toString())
 	
 	def totalInstructionMissed = 0
     def totalInstructionCovered = 0
