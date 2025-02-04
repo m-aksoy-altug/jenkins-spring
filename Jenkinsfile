@@ -81,10 +81,12 @@ def parseJacocoReport(String jacocoFile) {
     def totalComplexityCovered = 0
 
   report.'counter'.each { counter ->
-        def type = counter.attribute("type")?.toString()
-        def missed = counter.attribute("missed")?.toInteger() ?: 0
-        def covered = counter.attribute("covered")?.toInteger() ?: 0
-
+        def type = counter.getProperty('@type')?.toString():
+        def missed = counter.getProperty('@missed')?.toInteger() ?: 0
+        def covered = counter.getProperty('@covered')?.toInteger() ?: 0
+        
+        println "[LOG] Processing Counter - Type: ${type}, Missed: ${missed}, Covered: ${covered}"
+        
         switch (type) {
             case 'INSTRUCTION':
                 totalInstructionMissed += missed
