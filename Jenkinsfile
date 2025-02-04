@@ -38,7 +38,7 @@ pipeline {
                 		error "JaCoCo coverage report not found at ${jacocoFile}!"
             		}
 		
-		/*            def xmlParser = new XmlParser(false, false) 
+		          def xmlParser = new XmlParser(false, false) 
 		            xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
 		            def report = xmlParser.parse(jacocoFile)
             
@@ -69,7 +69,7 @@ pipeline {
 		            if (instructionRate < coverageThreshold || lineRate < coverageThreshold || complexityRate < coverageThreshold) {
 		                currentBuild.result = 'UNSTABLE'
 		                echo "Build marked as UNSTABLE due to low test coverage."
-		            }*/
+		            }
 		        }
 		    }
 		}
