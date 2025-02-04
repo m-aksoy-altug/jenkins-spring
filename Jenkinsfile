@@ -38,17 +38,14 @@ pipeline {
                 		error "JaCoCo coverage report not found at ${jacocoFile}!"
             		}
 					
-					xmlParser=new XmlSlurper()
-					xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false) 
-					xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-					def report = xmlParser.parse(jacocoFile)
-
+					
 /*		          	def xmlParser = new XmlParser(false, false) 
 		            xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
 		            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		            def report = xmlParser.parse(jacocoFile)
-*/            
-		            
+*/           
+                    def report = parseJacocoReport(jacocoFile)
+                    
 		            def instructionCounter = report.counter.find { it.@type == 'INSTRUCTION' }
 		            def lineCounter = report.counter.find { it.@type == 'LINE' }
 		            def complexityCounter = report.counter.find { it.@type == 'COMPLEXITY' }
@@ -80,4 +77,12 @@ pipeline {
 		    }
 		}
     }
+}
+
+@NonCPS
+def parseJacocoReport(String jacocoFile) {
+	xmlParser=new XmlSlurper(false,false)
+	xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false) 
+	xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+	return xmlParser.parse(jacocoFile)
 }
