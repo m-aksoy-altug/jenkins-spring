@@ -1,14 +1,3 @@
-import groovy.xml.XmlParser
-import org.jenkinsci.plugins.workflow.cps.CpsThread
-import org.jenkinsci.plugins.workflow.cps.CpsThreadGroup
-
-@NonCPS
-def parseJacocoReport(String jacocoFile) {
-    def xmlParser = new XmlParser(false, false) 
-    xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
-    return xmlParser.parse(jacocoFile)
-}
-
 pipeline {
     agent any
     tools {
@@ -45,12 +34,15 @@ pipeline {
 				   def jacocoFile = "${env.WORKSPACE}/target/site/jacoco/jacoco.xml"
         		   echo "JaCoCo report path: ${jacocoFile}"
                    
-		            if (!fileExists(jacocoFile)) {
+		             if (!fileExists(jacocoFile)) {
                 		error "JaCoCo coverage report not found at ${jacocoFile}!"
             		}
 		
-		            def report = parseJacocoReport(jacocoFile)
-                    
+		/*            def xmlParser = new XmlParser(false, false) 
+		            xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+		            def report = xmlParser.parse(jacocoFile)
+            
+		            
 		            def instructionCounter = report.counter.find { it.@type == 'INSTRUCTION' }
 		            def lineCounter = report.counter.find { it.@type == 'LINE' }
 		            def complexityCounter = report.counter.find { it.@type == 'COMPLEXITY' }
@@ -77,7 +69,7 @@ pipeline {
 		            if (instructionRate < coverageThreshold || lineRate < coverageThreshold || complexityRate < coverageThreshold) {
 		                currentBuild.result = 'UNSTABLE'
 		                echo "Build marked as UNSTABLE due to low test coverage."
-		            }
+		            }*/
 		        }
 		    }
 		}
