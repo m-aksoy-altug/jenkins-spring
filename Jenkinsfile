@@ -69,6 +69,8 @@ def parseJacocoReport(String jacocoFile) {
     def report = xmlParser.parse(jacocoFile)
     
     println "Parsing Jacoco report: ${jacocoFile}"
+    
+    println groovy.xml.XmlUtil.escapeXml(report.toString())
 	
 	def totalInstructionMissed = 0
     def totalInstructionCovered = 0
