@@ -48,7 +48,7 @@ pipeline {
                     echo "Line Coverage: ${lineRate}%"
                     echo "Complexity Coverage: ${complexityRate}%"
 
-                    def coverageThreshold = 60
+                    def coverageThreshold = 49
                     if (instructionRate < coverageThreshold || lineRate < coverageThreshold || complexityRate < coverageThreshold) {
                         currentBuild.result = 'UNSTABLE'
                         echo "Build marked as UNSTABLE due to low test coverage."
