@@ -31,7 +31,9 @@ pipeline {
 		    steps {
 				sh '''mvn clean test jacoco:report'''
 		        script {
-		            def jacocoFile = 'target/site/jacoco/jacoco.xml'
+				   def jacocoFile = "${env.WORKSPACE}/target/site/jacoco/jacoco.xml"
+        		   echo "JaCoCo report path: ${jacocoFile}"
+                   
 		            if (!fileExists(jacocoFile)) {
 		                error "JaCoCo coverage report not found!"
 		            }
