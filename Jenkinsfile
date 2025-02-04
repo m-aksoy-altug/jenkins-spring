@@ -1,3 +1,14 @@
+import groovy.xml.XmlParser
+import org.jenkinsci.plugins.workflow.cps.CpsThread
+import org.jenkinsci.plugins.workflow.cps.CpsThreadGroup
+
+@NonCPS
+def parseJacocoReport(String jacocoFile) {
+    def xmlParser = new XmlParser(false, false) 
+    xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+    return xmlParser.parse(jacocoFile)
+}
+
 pipeline {
     agent any
     tools {
@@ -35,15 +46,11 @@ pipeline {
         		   echo "JaCoCo report path: ${jacocoFile}"
                    
 		            if (!fileExists(jacocoFile)) {
-		                error "JaCoCo coverage report not found!"
-		            }
+                		error "JaCoCo coverage report not found at ${jacocoFile}!"
+            		}
 		
-		            // Parse the JaCoCo XML report using XmlSlurper with DOCTYPE allowed
-		            def xmlParser = new XmlParser(false, false) // Disable validation and allow DOCTYPE
-		            xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
-		            def report = xmlParser.parse(jacocoFile)
-            
-		            
+		            def report = parseJacocoReport(jacocoFile)
+                    
 		            def instructionCounter = report.counter.find { it.@type == 'INSTRUCTION' }
 		            def lineCounter = report.counter.find { it.@type == 'LINE' }
 		            def complexityCounter = report.counter.find { it.@type == 'COMPLEXITY' }
