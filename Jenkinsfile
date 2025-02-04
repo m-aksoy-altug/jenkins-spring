@@ -27,18 +27,36 @@ pipeline {
             }
         }
         
-        stage('Test and Coverage') {
-            steps {
-                script {
-				    recordCoverage(tools: [[parser: 'JACOCO']],
-			            id: 'jacoco', name: 'JaCoCo Coverage',
-			            sourceCodeRetention: 'EVERY_BUILD',
-			            qualityGates: [
-			                [threshold: 60.0, metric: 'LINE', baseline: 'PROJECT', unstable: true],
-			                [threshold: 60.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: true]
-			            ])
-                    }
-                }
-            }
-        }
+    	stage('Test and Coverage') {
+		    steps {
+		        script {
+		            def jacocoFile = 'target/site/jacoco/jacoco.xml'
+		            if (!fileExists(jacocoFile)) {
+		                error "JaCoCo coverage report not found!"
+		            }
+		            def instructionCoverage = sh(script: "grep -oPm1 '(?<=<counter type=\"INSTRUCTION\" missed=\")\\d+(?=\" covered=\"\\d+\")' ${jacocoFile}", returnStdout: true).trim()
+		            def coveredInstructions = sh(script: "grep -oPm1 '(?<=<counter type=\"INSTRUCTION\" missed=\"\\d+\" covered=\")\\d+(?=\")' ${jacocoFile}", returnStdout: true).trim()
+		            def lineCoverage = sh(script: "grep -oPm1 '(?<=<counter type=\"LINE\" missed=\")\\d+(?=\" covered=\"\\d+\")' ${jacocoFile}", returnStdout: true).trim()
+		            def coveredLines = sh(script: "grep -oPm1 '(?<=<counter type=\"LINE\" missed=\"\\d+\" covered=\")\\d+(?=\")' ${jacocoFile}", returnStdout: true).trim()
+		            def complexityCoverage = sh(script: "grep -oPm1 '(?<=<counter type=\"COMPLEXITY\" missed=\")\\d+(?=\" covered=\"\\d+\")' ${jacocoFile}", returnStdout: true).trim()
+		            def coveredComplexity = sh(script: "grep -oPm1 '(?<=<counter type=\"COMPLEXITY\" missed=\"\\d+\" covered=\")\\d+(?=\")' ${jacocoFile}", returnStdout: true).trim()
+		
+		            def instructionRate = (coveredInstructions.toDouble() / (coveredInstructions.toDouble() + instructionCoverage.toDouble())) * 100
+		            def lineRate = (coveredLines.toDouble() / (coveredLines.toDouble() + lineCoverage.toDouble())) * 100
+		            def complexityRate = (coveredComplexity.toDouble() / (coveredComplexity.toDouble() + complexityCoverage.toDouble())) * 100
+		
+		            echo "Instruction Coverage: ${instructionRate.round(2)}%"
+		            echo "Line Coverage: ${lineRate.round(2)}%"
+		            echo "Complexity Coverage: ${complexityRate.round(2)}%"
+		
+		            def coverageThreshold = 60.0
+		            if (instructionRate < coverageThreshold || lineRate < coverageThreshold || complexityRate < coverageThreshold) {
+		                currentBuild.result = 'UNSTABLE'
+		                echo "Build marked as UNSTABLE due to low test coverage."
+		            }
+		        }
+		    }
+		}    
+    
+    }
 }
