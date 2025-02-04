@@ -44,11 +44,11 @@ pipeline {
                     def lineRate = (metrics.lineCovered / (metrics.lineCovered + metrics.lineMissed)) * 100
                     def complexityRate = (metrics.complexityCovered / (metrics.complexityCovered + metrics.complexityMissed)) * 100
                    
-                    echo "Instruction Coverage: ${instructionRate.round(2)}%"
-                    echo "Line Coverage: ${lineRate.round(2)}%"
-                    echo "Complexity Coverage: ${complexityRate.round(2)}%"
+                    echo "Instruction Coverage: ${instructionRate}%"
+                    echo "Line Coverage: ${lineRate}%"
+                    echo "Complexity Coverage: ${complexityRate}%"
 
-                    def coverageThreshold = 60.0
+                    def coverageThreshold = 60
                     if (instructionRate < coverageThreshold || lineRate < coverageThreshold || complexityRate < coverageThreshold) {
                         currentBuild.result = 'UNSTABLE'
                         echo "Build marked as UNSTABLE due to low test coverage."
@@ -103,12 +103,6 @@ def parseJacocoReport(String jacocoFile) {
         }
     }
 
-    println "Total Coverage Summary:"
-    println "  Instruction - Missed: ${totalInstructionMissed}, Covered: ${totalInstructionCovered}"
-    println "  Line - Missed: ${totalLineMissed}, Covered: ${totalLineCovered}"
-    println "  Complexity - Missed: ${totalComplexityMissed}, Covered: ${totalComplexityCovered}"
-
-	
     println "Total Coverage Summary:"
     println "  Instruction - Missed: ${totalInstructionMissed}, Covered: ${totalInstructionCovered}"
     println "  Line - Missed: ${totalLineMissed}, Covered: ${totalLineCovered}"
