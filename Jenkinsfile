@@ -30,15 +30,13 @@ pipeline {
         stage('Test and Coverage') {
             steps {
                 script {
-                    def lineCoverage = sh(script: "grep -oPm1 '(?<=<line-rate>)[^<]+' target/site/jacoco/jacoco.xml", returnStdout: true).trim()
-                    def branchCoverage = sh(script: "grep -oPm1 '(?<=<branch-rate>)[^<]+' target/site/jacoco/jacoco.xml", returnStdout: true).trim()
-
-                    echo "Line Coverage: ${lineCoverage}"
-                    echo "Branch Coverage: ${branchCoverage}"
-
-                    if (lineCoverage.toDouble() < 0.6 || branchCoverage.toDouble() < 0.6) {
-                        currentBuild.result = 'UNSTABLE'
-                        echo "Build marked as unstable due to low test coverage."
+				    recordCoverage(tools: [[parser: 'JACOCO']],
+			            id: 'jacoco', name: 'JaCoCo Coverage',
+			            sourceCodeRetention: 'EVERY_BUILD',
+			            qualityGates: [
+			                [threshold: 60.0, metric: 'LINE', baseline: 'PROJECT', unstable: true],
+			                [threshold: 60.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: true]
+			            ])
                     }
                 }
             }
