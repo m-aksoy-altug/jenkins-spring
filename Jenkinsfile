@@ -29,6 +29,7 @@ pipeline {
         
     	stage('Test and Coverage') {
 		    steps {
+				sh '''mvn clean test jacoco:report'''
 		        script {
 		            def jacocoFile = 'target/site/jacoco/jacoco.xml'
 		            if (!fileExists(jacocoFile)) {
